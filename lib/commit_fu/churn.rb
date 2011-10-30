@@ -16,6 +16,7 @@ class Churn < SexpProcessor
   def self.analyze(code)
     churn = new
     ast = churn.parser.process(code)
+    #p ast
     churn.process ast
     churn
   rescue Racc::ParseError, SyntaxError
@@ -33,17 +34,31 @@ class Churn < SexpProcessor
     churn.all_methods
   end
 
-  def get_name(exp)
+  def process_class(exp)
     name = exp.shift
-    name = name.values.drop(1).join("::") if name.is_a?(Sexp)
-    name
+    @current_class = get_name(name)
+    @modules[@current_class] << (exp.line..exp.last.line)
+    #p "In process class: #{name}"
+    Sexp.new(:class, name, process(exp.shift), process(exp.shift))
   end
 
-  def process_class(exp)
-    @current_class = get_name(exp)
-    @modules[@current_class] << (exp.line..exp.last.line)
-    process exp.shift until exp.empty?
-    Sexp.new
+  def process_lit(exp)
+    literal = exp.shift
+    #p "in process lit: #{literal}"
+    Sexp.new(:lit, literal, process(exp.shift))
+  end
+
+  def process_lasgn(exp)
+    variable = exp.shift
+    variable_assignment_scope = exp.shift
+    #p "In process lasgn: #{variable}\n\t#{variable_assignment_scope}"
+    Sexp.new(:lasagn, variable, process(variable_assignment_scope), process(exp.shift))
+  end
+
+  def process_block(exp)
+    block = exp.shift
+    #p "In process block: #{block}"
+    Sexp.new(:block, process(block), process(exp.shift))
   end
 
   alias_method :process_module, :process_class
@@ -52,7 +67,30 @@ class Churn < SexpProcessor
     name = exp.shift
     parameters = exp.shift
     @all_methods[@current_class] << ["##{name.to_s}", parameters.count - 1, (exp.line..exp.last.line)]
-    Sexp.new(:defn, name, process(parameters), process(exp.shift))
+    scope = exp.shift
+    #p "In process defn: #{name}\n\t#{parameters}\n\t#{scope}"
+    Sexp.new(name, process(parameters), process(scope), process(exp.shift))
+  end
+
+  def process_if(exp)
+    conditional = exp.shift
+    truth_scope = exp.shift
+    #p "In process if: #{conditional}\n\t#{truth_scope}"
+    Sexp.new(process(conditional), process(truth_scope), process(exp.shift))
+  end
+
+  def process_call(exp)
+    receiver = exp.shift
+    method_name = exp.shift
+    arg_list = exp.shift
+    #p "In process call: #{receiver}\n\t#{method_name}\n\t#{arg_list}"
+    Sexp.new(process(receiver), method_name, process(arg_list), process(exp.shift))
+  end
+
+  private
+
+  def get_name(name)
+    name.is_a?(Sexp) ? name.values.drop(1).join("::") : name
   end
 end
 
