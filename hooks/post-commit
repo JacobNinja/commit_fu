@@ -1,0 +1,4 @@
+#!/usr/bin/env bash -l
+
+ruby $GIT_DIR/hooks/commit_analyzer.rb
+
