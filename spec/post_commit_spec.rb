@@ -54,6 +54,11 @@ end
   end
 
   describe "#critique" do
+
+    before do
+      sut.stub(:roodi).and_return(stub('Roodi::Runner').as_null_object)
+    end
+
     it "returns scores from analyze that have high accumulation of churn and complexity and adds errors" do
       commit.stub(:score).with(method_body(before_blob)).and_return(1)
       commit.stub(:score).with(method_body(after_blob)).and_return(11)

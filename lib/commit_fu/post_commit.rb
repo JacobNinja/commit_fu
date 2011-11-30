@@ -14,8 +14,7 @@ class PostCommit
   end
 
   def analyze
-    scores = commit.score_methods
-    scores.each_with_object(Hash.new {|h, k| h[k] = []}) do |(file_name, score), hsh|
+    commit.score_methods.each_with_object(Hash.new {|h, k| h[k] = []}) do |(file_name, score), hsh|
       flog_scores = score.inject([]) do |flog_scores, (module_name, method_name, arity, before_range, after_range)|
         diff = commit.diffs.find {|diff| (diff.a_path || diff.b_path) == file_name }
         before_score = commit.score(blob_contents(diff, :a_blob, before_range))
