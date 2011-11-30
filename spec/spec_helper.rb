@@ -1,1 +1,3 @@
-require (File.dirname(__FILE__) + "/../lib/commit_fu")
+require 'rspec'
+
+require File.expand_path("../../lib/commit_fu", __FILE__)

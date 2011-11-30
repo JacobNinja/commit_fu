@@ -75,8 +75,8 @@ module ChurnCommit
   def score_methods
     @score_methods ||= ruby_diffs.each_with_object(Hash.new {|h, k| h[k] = []}) do |diff, churns|
       file_name = diff_filename(diff)
-      before_churn = diff.a_blob ? Churn.all_methods(diff.a_blob.data) : Hash.new {|h, k| h[k] = []}
-      after_churn = diff.b_blob ? Churn.all_methods(diff.b_blob.data) : Hash.new {|h, k| h[k] = []}
+      before_churn = method_churn_score(diff.a_blob)
+      after_churn = method_churn_score(diff.b_blob)
       after_churn.each do |module_name, b_details|
         b_details.each do |b_detail|
           a_detail = before_churn[module_name].find {|a_details| b_detail.first == a_details.first}
@@ -89,6 +89,16 @@ module ChurnCommit
           churns[file_name] << [module_name, b_method_name, b_arity - a_arity, a_line_range, b_line_range]
         end
       end
+    end
+  end
+
+  private
+
+  def method_churn_score(blob)
+    if blob
+      Churn.all_methods(blob.data)
+    else
+      Hash.new { |h, k| h[k] = [] }
     end
   end
 
