@@ -1,14 +1,14 @@
-require File.expand_path('/Users/jacobr/code/metrics/commit_fu/lib/commit_fu', __FILE__)
-require '/Users/jacobr/code/grit/lib/grit'
+require File.expand_path('commit_fu')
+require 'grit'
 
 repo = Grit::Repo.new(ENV["GIT_DIR"])
 commit = repo.commit('HEAD')
 
 post_commit = PostCommit.new(commit)
 errors = post_commit.critique.inject([]) do |errors, (file_name, scores)|
-  errors + scores.inject([]) do |coll, score|
+  errors + scores.inject([]) do |collection, score|
     score_errors = score.errors.flatten
-    coll + (score_errors.empty? ? [] : [[score.method_name, score_errors]])
+    collection + (score_errors.empty? ? [] : [[score.method_name, score_errors]])
   end
 end
 puts "Consider refactoring your code in the following areas:" unless errors.empty?

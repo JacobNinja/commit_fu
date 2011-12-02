@@ -1,5 +1,6 @@
 require 'sexp_processor'
 require 'ruby_parser'
+require File.expand_path('../commit', __FILE__)
 
 class Churn < SexpProcessor
 
