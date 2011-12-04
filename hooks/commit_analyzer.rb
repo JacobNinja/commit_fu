@@ -1,4 +1,4 @@
-require File.expand_path('commit_fu')
+require 'commit_fu'
 require 'grit'
 
 repo = Grit::Repo.new(ENV["GIT_DIR"])

@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     lib/commit_fu/churn.rb
     lib/commit_fu/commit.rb
     lib/commit_fu/flogger.rb
+    lib/commit_fu/post_commit.rb
   ]
   # = MANIFEST =
 
