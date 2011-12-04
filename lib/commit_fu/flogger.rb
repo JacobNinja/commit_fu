@@ -1,7 +1,9 @@
 require File.expand_path('../../flog', __FILE__)
 
 module FlogCommit
+
   include Commit
+
   def flog
     @flog ||= Flog.new
   end
@@ -13,16 +15,14 @@ module FlogCommit
     end / scores.size.to_f
   end
 
-  def scores
-    @scores ||= ruby_diffs.map do |diff|
+  def scores(diffs_to_score=ruby_diffs)
+    @scores ||= diffs_to_score.map do |diff|
       [diff_filename(diff)] + diff_score(diff)
     end
   end
 
   def score_files(files)
-    @score_files ||= ruby_diffs.select {|diff| files.include?(diff_filename(diff))}.map do |diff|
-      [diff_filename(diff)] + diff_score(diff)
-    end
+    scores(ruby_diffs.select {|diff| files.include?(diff_filename(diff))})
   end
 
   def score(code)

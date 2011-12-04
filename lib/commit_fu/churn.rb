@@ -17,7 +17,6 @@ class Churn < SexpProcessor
   def self.analyze(code)
     churn = new
     ast = churn.parser.process(code)
-    #p ast
     churn.process ast
     churn
   rescue Racc::ParseError, SyntaxError
@@ -48,8 +47,7 @@ class Churn < SexpProcessor
     name = exp.shift
     parameters = exp.shift
     @all_methods[@current_class] << ["##{name.to_s}", parameters.count - 1, (exp.line..exp.last.line)]
-    scope = exp.shift
-    Sexp.new(name, process(parameters), process(scope), process(exp.shift))
+    Sexp.new(name, process(parameters), process(exp.shift), process(exp.shift))
   end
 
   private
@@ -67,7 +65,7 @@ module ChurnCommit
     @score_classes ||= diffs.inject([]) do |churns, diff|
       before_churn = (diff.a_blob and diff.b_blob) ? Churn.modules(diff.a_blob.data) : []
       after_churn = diff.b_blob ? Churn.modules(diff.b_blob.data) : []
-      churns + before_churn.select {|mod, line_ranges|  c = after_churn[mod] and !c.empty?}.map do |mod, line_ranges|
+      churns + before_churn.select {|mod, _| after_churn.has_key?(mod) }.map do |mod, line_ranges|
         [diff_filename(diff), mod, line_ranges, after_churn[mod]]
       end
     end
