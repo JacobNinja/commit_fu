@@ -9,10 +9,11 @@ module FlogCommit
   end
 
   def average
-    scores.reduce(0.0) do |memo, score|
+    average_score = (scores.reduce(0.0) do |memo, score|
       _, before_score, after_score = score
       (after_score - before_score) + memo
-    end / scores.size.to_f
+    end / scores.size.to_f)
+    average_score.nan? ? 0.0 : average_score
   end
 
   def scores(diffs_to_score=ruby_diffs)

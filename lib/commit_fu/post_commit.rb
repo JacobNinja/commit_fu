@@ -15,13 +15,14 @@ class PostCommit
 
   def analyze
     commit.score_methods.each_with_object(Hash.new {|h, k| h[k] = []}) do |(file_name, score), hsh|
-      flog_scores = score.inject([]) do |flog_scores, (module_name, method_name, arity, before_range, after_range)|
+      flog_scores = score.inject([]) do |flog_scores, (commit_details)|
+        before_range, after_range = commit_details[:line_range_a], commit_details[:line_range_b]
         diff = commit.diffs.find {|diff| (diff.a_path || diff.b_path) == file_name }
         before_score = commit.score(blob_contents(diff, :a_blob, before_range))
         after_commit_content = blob_contents(diff, :b_blob, after_range)
         after_score = commit.score(after_commit_content)
         accumulated_score = after_score - before_score
-        commit_args = {:module_name => module_name, :method_name => method_name, :flog_score => accumulated_score,
+        commit_args = {:module_name => commit_details[:module], :method_name => commit_details[:method], :flog_score => accumulated_score,
                        :lines_added => ((after_range.max - after_range.min) - (before_range.max - before_range.min)),
                        :b_blob => after_commit_content }
         flog_scores + Array(commit_score(commit_args, accumulated_score))

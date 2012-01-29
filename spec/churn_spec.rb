@@ -30,17 +30,17 @@ describe ChurnCommit do
     end
 
     it "reports file name as first item" do
-      method_details.first.should == "file1.rb"
+      method_details[:file].should == "file1.rb"
     end
 
     it "reports class name as second item" do
-      method_details[1].should == :Test
+      method_details[:module].should == :Test
     end
     it "reports line range of A as third item" do
-      method_details[2].should == [(1..2)]
+      method_details[:line_range_a].should == [(1..2)]
     end
     it "reports line range of B as fourth item" do
-      method_details[3].should == [(1..3)]
+      method_details[:line_range_b].should == [(1..3)]
     end
   end
 
@@ -59,19 +59,19 @@ describe ChurnCommit do
 
       context "returns hash of values that" do
         it "have module name" do
-          method_details.first.should == :Test
+          method_details[:module].should == :Test
         end
         it "have each method" do
-          method_details[1].should == "#some_method"
+          method_details[:method].should == "#some_method"
         end
         it "have method arity difference" do
-          method_details[2].should == 1
+          method_details[:arity].should == 1
         end
         it "have line range of A" do
-          method_details[3].should == (2..3)
+          method_details[:line_range_a].should == (2..3)
         end
         it "have line range of B" do
-          method_details[4].should == (2..4)
+          method_details[:line_range_b].should == (2..4)
         end
       end
     end
@@ -84,19 +84,19 @@ describe ChurnCommit do
       end
 
       it "reports name of new method" do
-        method_details[1].should == "#some_method"
+        method_details[:method].should == "#some_method"
       end
 
       it "reports arity of new method" do
-        method_details[2].should == 3
+        method_details[:arity].should == 3
       end
 
       it "reports line range of A as 0" do
-        method_details[3].should == (0..0)
+        method_details[:line_range_a].should == (0..0)
       end
 
       it "reports line range of B" do
-        method_details[4].should == (2..4)
+        method_details[:line_range_b].should == (2..4)
       end
 
     end
@@ -122,13 +122,13 @@ describe Churn do
     end
 
     it "returns hash of modules with each method as first element of each" do
-      method_details.first.should == "#test_method"
+      method_details[:method].should == "#test_method"
     end
     it "provides method arity as second element" do
-      method_details[1].should == 3
+      method_details[:arity].should == 3
     end
     it "provides method line range as third element" do
-      method_details[2].should == (2..3)
+      method_details[:line_range].should == (2..3)
     end
   end
 

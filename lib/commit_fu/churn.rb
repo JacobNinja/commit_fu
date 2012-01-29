@@ -46,7 +46,8 @@ class Churn < SexpProcessor
   def process_defn(exp)
     name = exp.shift
     parameters = exp.shift
-    @all_methods[@current_class] << ["##{name.to_s}", parameters.count - 1, (exp.line..exp.last.line)]
+    details = {:method => "##{name.to_s}", :arity => parameters.count - 1, :line_range => (exp.line..exp.last.line)}
+    @all_methods[@current_class] << details
     Sexp.new(name, process(parameters), process(exp.shift), process(exp.shift))
   end
 
@@ -66,7 +67,7 @@ module ChurnCommit
       before_churn = (diff.a_blob and diff.b_blob) ? Churn.modules(diff.a_blob.data) : []
       after_churn = diff.b_blob ? Churn.modules(diff.b_blob.data) : []
       churns + before_churn.select {|mod, _| after_churn.has_key?(mod) }.map do |mod, line_ranges|
-        [diff_filename(diff), mod, line_ranges, after_churn[mod]]
+        {:file => diff_filename(diff), :module => mod, :line_range_a => line_ranges, :line_range_b => after_churn[mod]}
       end
     end
   end
@@ -78,14 +79,16 @@ module ChurnCommit
       after_churn = method_churn_score(diff.b_blob)
       after_churn.each do |module_name, b_details|
         b_details.each do |b_detail|
-          a_detail = before_churn[module_name].find {|a_details| b_detail.first == a_details.first}
-          b_method_name, b_arity, b_line_range = b_detail
+          before_churn
+          a_detail = before_churn[module_name].find {|a_details| b_detail[:method] == a_details[:method]}
+          b_method_name, b_arity, b_line_range = b_detail[:method], b_detail[:arity], b_detail[:line_range]
           if a_detail
-            _, a_arity, a_line_range = a_detail
+            a_arity, a_line_range = a_detail[:arity], a_detail[:line_range]
           else
             a_arity, a_line_range = 0, (0..0)
           end
-          churns[file_name] << [module_name, b_method_name, b_arity - a_arity, a_line_range, b_line_range]
+          details = {:module => module_name, :method => b_method_name, :arity => b_arity - a_arity, :line_range_a => a_line_range, :line_range_b => b_line_range}
+          churns[file_name] << details
         end
       end
     end

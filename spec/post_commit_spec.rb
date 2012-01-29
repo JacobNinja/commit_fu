@@ -62,11 +62,11 @@ end
     it "returns scores from analyze that have high accumulation of churn and complexity and adds errors" do
       commit.stub(:score).with(method_body(before_blob)).and_return(1)
       commit.stub(:score).with(method_body(after_blob)).and_return(11)
-      error = stub('Error', :errors => [:errors_collection])
-      sut.roodi.should_receive(:check).with('file1.rb', method_body(after_blob)).and_return([error])
+      check = stub('Roodi::Check', :errors => [:errors_collection])
+      sut.roodi.should_receive(:check).with('file1.rb', method_body(after_blob)).and_return([check])
       # 10 points of complexity and 2 lines added
       result = sut.analyze
-      result['file1.rb'].first.errors = error.errors
+      result['file1.rb'].first.errors = check.errors
       sut.critique.should == result
     end
 
