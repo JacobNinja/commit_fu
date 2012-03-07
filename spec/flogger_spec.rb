@@ -3,11 +3,11 @@ require 'spec_helper'
 class MockCommit
 end
 
-describe FlogCommit do
+describe CommitFu::FlogCommit do
 
   let(:commit) { double('Grit::Commit') }
   let(:diff) { double('Grit::Diff') }
-  let(:sut) { MockCommit.new.extend(FlogCommit) }
+  let(:sut) { MockCommit.new.extend(CommitFu::FlogCommit) }
 
   before do
     sut.stub(:diffs).and_return([diff])

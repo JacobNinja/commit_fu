@@ -10,7 +10,7 @@ class PostCommit
   attr_reader :commit
 
   def initialize(commit)
-    @commit = commit.extend(ChurnCommit).extend(FlogCommit)
+    @commit = commit.extend(CommitFu::ChurnCommit).extend(CommitFu::FlogCommit)
   end
 
   def analyze

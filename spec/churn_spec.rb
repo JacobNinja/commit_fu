@@ -3,9 +3,9 @@ require 'spec_helper'
 class MockCommit
 end
 
-describe ChurnCommit do
+describe CommitFu::ChurnCommit do
 
-  let(:sut) { MockCommit.new.extend(ChurnCommit) }
+  let(:sut) { MockCommit.new.extend(CommitFu::ChurnCommit) }
   let(:diff) { double('Grit::Diff') }
 
   before do
@@ -103,12 +103,12 @@ describe ChurnCommit do
   end
 end
 
-describe Churn do
+describe CommitFu::Churn do
 
   describe "self#modules" do
     it "returns hash of modules and line numbers" do
       test_class = "class Test\nend"
-      Churn.modules(test_class).should == {:Test => [(1..2)]}
+      CommitFu::Churn.modules(test_class).should == {:Test => [(1..2)]}
     end
   end
 
@@ -118,7 +118,7 @@ describe Churn do
     end
 
     def method_details
-      Churn.all_methods(@test_class)[:Test].first
+      CommitFu::Churn.all_methods(@test_class)[:Test].first
     end
 
     it "returns hash of modules with each method as first element of each" do
