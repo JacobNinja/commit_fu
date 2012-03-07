@@ -1,4 +1,5 @@
 require File.expand_path('../../flog', __FILE__)
+require 'rugged'
 
 module FlogCommit
 
@@ -39,7 +40,12 @@ module FlogCommit
   def diff_score(diff)
     [:a_blob, :b_blob].map do |message|
       blob = diff.send(message)
-      blob.nil? ? 0.0 : score(blob.data)
+      blob.nil? ? 0.0 : score(get_contents(blob))
     end
+  end
+
+  def get_contents(blob)
+    rugged_repo = Rugged::Repository.new(self.repo.working_dir)
+    rugged_repo.lookup(blob.id).content
   end
 end

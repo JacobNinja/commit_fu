@@ -16,17 +16,24 @@ describe FlogCommit do
   describe "#scores" do
 
     let(:flog) { double('Flog').as_null_object }
+    let(:a_blob) { stub("Blob", :id => "XXX") }
+    let(:b_blob) { stub("Blob", :id => "YYY") }
+    let(:rugged_repo) { stub("Rugged::Repository") }
 
     before do
-      diff.stub_chain(:a_blob, :data).and_return(:a_blob_data)
-      diff.stub_chain(:b_blob, :data).and_return(:b_blob_data)
+      diff.stub(:a_blob).and_return(a_blob)
+      diff.stub(:b_blob).and_return(b_blob)
       sut.should_receive(:flog).any_number_of_times.and_return(flog)
       diff.stub(:a_path).and_return('file1.rb')
       diff.stub(:b_path).and_return('file2.rb')
       flog.should_receive(:reset).any_number_of_times
+      sut.stub_chain(:repo, :working_dir).and_return("working dir")
+      Rugged::Repository.should_receive(:new).with("working dir").any_number_of_times.and_return(rugged_repo)
     end
 
     it "provides an array containing [file_name, old_score, new_score] for each diff" do
+      rugged_repo.should_receive(:lookup).with(a_blob.id).and_return(stub("Rugged::Blob", :content => :a_blob_data))
+      rugged_repo.should_receive(:lookup).with(b_blob.id).and_return(stub("Rugged::Blob", :content => :b_blob_data))
       flog.should_receive(:flog).with(:a_blob_data)
       flog.should_receive(:flog).with(:b_blob_data)
       flog.should_receive(:total).and_return(0.0)
@@ -61,6 +68,7 @@ describe FlogCommit do
         diff.stub(:b_path).and_return('newfile.rb')
         diff.stub(:a_path).and_return(nil)
         diff.stub(:a_blob).and_return nil
+        rugged_repo.should_receive(:lookup).with(b_blob.id).and_return(stub("Rugged::Blob", :content => :b_blob_data))
         flog.should_receive(:flog).with(:b_blob_data)
         flog.should_receive(:total).and_return(1.0)
       end
@@ -80,6 +88,7 @@ describe FlogCommit do
         flog.should_receive(:total).and_return(1.0)
         diff.stub(:b_path).and_return(nil)
         diff.stub(:b_blob).and_return(nil)
+        rugged_repo.should_receive(:lookup).with(a_blob.id).and_return(stub("Rugged::Blob", :content => :a_blob_data))
       end
 
       it "scores b at 0.0" do

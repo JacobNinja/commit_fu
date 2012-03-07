@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency('grit')
   s.add_dependency('sexp_processor', '~> 3.0')
   s.add_dependency('ruby_parser', '~> 2.0')
+  s.add_dependency('rugged')
 
   s.add_development_dependency('rspec')
 
