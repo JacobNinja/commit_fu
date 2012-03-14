@@ -30,7 +30,7 @@ module CommitFu
 
     def total_score
       scores.reduce(0) do |calculated_score, (_, before_score, after_score)|
-        calculated_score + (after_score - before_score)
+        calculated_score + accumulated_score(before_score, after_score)
       end
     end
 
@@ -39,7 +39,7 @@ module CommitFu
       flog.flog(code)
       flog.total
     rescue Racc::ParseError, SyntaxError
-      0
+      nil
     end
 
     private
@@ -48,6 +48,14 @@ module CommitFu
       [:a_blob, :b_blob].map do |message|
         blob = diff.send(message)
         blob.nil? ? 0.0 : score(get_contents(blob))
+      end
+    end
+
+    def accumulated_score(before_score, after_score)
+      if before_score && after_score
+        after_score - before_score
+      else
+        before_score or after_score
       end
     end
 
