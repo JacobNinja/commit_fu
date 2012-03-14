@@ -28,6 +28,12 @@ module CommitFu
       scores(ruby_diffs.select {|diff| files.include?(diff_filename(diff))})
     end
 
+    def total_score
+      scores.reduce(0) do |calculated_score, (_, before_score, after_score)|
+        calculated_score + (after_score - before_score)
+      end
+    end
+
     def score(code)
       flog.reset
       flog.flog(code)

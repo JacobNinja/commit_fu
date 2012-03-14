@@ -103,4 +103,11 @@ describe CommitFu::FlogCommit do
       sut.average.should == 3.0
     end
   end
+
+  describe "#total_score" do
+    it "returns sum of accumulated score" do
+      sut.stub(:scores).and_return([['file1.rb', 1.0, 2.0], ['file2.rb', 5.0, 10.0]])
+      sut.total_score.should == 6.0
+    end
+  end
 end
