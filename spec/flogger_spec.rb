@@ -62,6 +62,11 @@ describe CommitFu::FlogCommit do
       sut.scores.to_a.should == []
     end
 
+    it "converts nil to zero when code has syntax error" do
+      sut.should_receive(:diff_score).and_return([50.0, nil])
+      sut.scores.should == [["file1.rb", 50.0, 0.0]]
+    end
+
     context "new file" do
 
       before do
