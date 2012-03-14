@@ -55,7 +55,7 @@ module CommitFu
       if before_score && after_score
         after_score - before_score
       else
-        before_score or after_score
+        0.0
       end
     end
 

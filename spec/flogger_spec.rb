@@ -109,13 +109,13 @@ describe CommitFu::FlogCommit do
       sut.stub(:scores).and_return([['file1.rb', 1.0, 2.0], ['file2.rb', 5.0, 10.0]])
       sut.total_score.should == 6.0
     end
-    it "uses after_score if before_score is nil" do
+    it "returns 0 if before_score is nil" do
       sut.stub(:scores).and_return([['file.rb', nil, 5.0]])
-      sut.total_score.should == 5.0
+      sut.total_score.should == 0.0
     end
-    it "uses before_score if after_score is nil" do
+    it "returns 0 if after_score is nil" do
       sut.stub(:scores).and_return([['file.rb', 10.0, nil]])
-      sut.total_score.should == 10.0
+      sut.total_score.should == 0.0
     end
   end
 end
