@@ -20,7 +20,7 @@ module CommitFu
 
     def scores(diffs_to_score=ruby_diffs)
       @scores ||= diffs_to_score.map do |diff|
-        [diff_filename(diff), *diff_score(diff).map{|score| score || 0.0 }]
+        [diff_filename(diff), *diff_score(diff)]
       end
     end
 
