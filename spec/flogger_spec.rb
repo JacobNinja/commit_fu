@@ -7,15 +7,17 @@ describe CommitFu::FlogCommit do
 
   let(:commit) { double('Grit::Commit') }
   let(:diff) { double('Grit::Diff') }
+  let(:flog) { double('Flog').as_null_object }
   let(:sut) { MockCommit.new.extend(CommitFu::FlogCommit) }
 
   before do
     sut.stub(:diffs).and_return([diff])
+    flog.should_receive(:reset).any_number_of_times
+    sut.should_receive(:flog).any_number_of_times.and_return(flog)
   end
 
   describe "#scores" do
 
-    let(:flog) { double('Flog').as_null_object }
     let(:a_blob) { stub("Blob", :id => "XXX") }
     let(:b_blob) { stub("Blob", :id => "YYY") }
     let(:rugged_repo) { stub("Rugged::Repository") }
@@ -23,10 +25,8 @@ describe CommitFu::FlogCommit do
     before do
       diff.stub(:a_blob).and_return(a_blob)
       diff.stub(:b_blob).and_return(b_blob)
-      sut.should_receive(:flog).any_number_of_times.and_return(flog)
       diff.stub(:a_path).and_return('file1.rb')
       diff.stub(:b_path).and_return('file2.rb')
-      flog.should_receive(:reset).any_number_of_times
       sut.stub_chain(:repo, :working_dir).and_return("working dir")
       Rugged::Repository.should_receive(:new).with("working dir").any_number_of_times.and_return(rugged_repo)
     end
@@ -121,6 +121,24 @@ describe CommitFu::FlogCommit do
     it "returns 0 if after_score is nil" do
       sut.stub(:scores).and_return([['file.rb', 10.0, nil]])
       sut.total_score.should == 0.0
+    end
+  end
+
+  describe "#score" do
+
+    let(:code) { "class Test; end" }
+
+    it "retries scoring once if NoMethodError is raised" do
+      flog.should_receive(:flog).with(code).and_raise NoMethodError
+      flog.should_receive(:flog).with(code)
+      flog.should_receive(:total).and_return 10
+      sut.score(code).should == 10
+    end
+
+    it "retries scoring only once" do
+      flog.should_receive(:flog).with(code).and_raise NoMethodError
+      flog.should_receive(:flog).with(code).and_raise NoMethodError
+      sut.score(code)
     end
   end
 end
