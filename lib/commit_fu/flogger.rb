@@ -11,10 +11,7 @@ module CommitFu
     end
 
     def average
-      average_score = (scores.reduce(0.0) do |memo, score|
-        _, before_score, after_score = score
-        (after_score - before_score) + memo
-      end / scores.size.to_f)
+      average_score = score_sum / scores.size.to_f
       average_score.nan? ? 0.0 : average_score
     end
 
@@ -50,6 +47,13 @@ module CommitFu
       [:a_blob, :b_blob].map do |message|
         blob = diff.send(message)
         blob.nil? ? 0.0 : score(get_contents(blob))
+      end
+    end
+
+    def score_sum
+      scores.reduce(0.0) do |memo, score|
+        _, before_score, after_score = score
+        (after_score - before_score) + memo
       end
     end
 

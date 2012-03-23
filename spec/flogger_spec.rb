@@ -48,10 +48,17 @@ describe CommitFu::FlogCommit do
       sut.scores.to_a.should == []
     end
 
-    it "skips scoring test files" do
+    it "skips scoring spec files" do
       non_ruby_diff = double('Grit::Diff')
       sut.stub(:diffs).and_return([non_ruby_diff])
       non_ruby_diff.stub(:a_path).and_return('ruby_spec.rb')
+      sut.scores.to_a.should == []
+    end
+
+    it "skips scoring test files" do
+      non_ruby_diff = double('Grit::Diff')
+      sut.stub(:diffs).and_return([non_ruby_diff])
+      non_ruby_diff.stub(:a_path).and_return('ruby_test.rb')
       sut.scores.to_a.should == []
     end
 

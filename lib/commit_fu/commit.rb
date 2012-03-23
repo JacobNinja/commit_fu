@@ -2,7 +2,7 @@ module CommitFu
   module Commit
     def ruby_diffs
       diffs.select do |diff|
-        diff_filename(diff) =~ /\.rb$/ && diff_filename(diff) !~ /_spec|_steps\.rb$/
+        diff_filename(diff).match(/\.rb$/) && !diff_filename(diff).match(/_spec|_steps|_test\.rb$/)
       end
     end
 
