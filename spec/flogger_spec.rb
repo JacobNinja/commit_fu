@@ -102,6 +102,14 @@ describe CommitFu::FlogCommit do
         sut.scores.to_a.first.drop(1).should == [1.0, 0.0]
       end
     end
+
+    context "no file name (no idea why)" do
+      it "skips scoring" do
+        diff.stub(:a_path).and_return(nil)
+        diff.stub(:b_path).and_return(nil)
+        sut.ruby_diffs.should eql []
+      end
+    end
   end
 
   describe "#average" do

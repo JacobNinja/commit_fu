@@ -9,7 +9,7 @@ module CommitFu
     private
 
     def diff_filename(diff)
-      diff.a_path || diff.b_path
+      diff.a_path || diff.b_path || ""
     end
   end
 end
